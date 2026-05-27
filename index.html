@@ -268,7 +268,104 @@ window.setFiltroV=setFiltroV;
 
 function renderVentas(){const q=(document.getElementById('v-search').value||'').toLowerCase();const f=ventas.filter(v=>{const dias=diasDesde(v.fecha);const vencido=dias!==null&&dias>30&&(v.estatus||'').toLowerCase()!=='entregado';const mq=!q||v.usuario.toLowerCase().includes(q)||v.articulo.toLowerCase().includes(q)||(v.color||'').toLowerCase().includes(q);if(filtroV==='vencido')return mq&&vencido;if(filtroV==='todos')return mq;return mq&&(v.estatus||'').toLowerCase()===filtroV;});const el=document.getElementById('ventas-list');if(!f.length){el.innerHTML='<div class="empty">Sin resultados</div>';}else{el.innerHTML=f.map(v=>{const dias=diasDesde(v.fecha);const vencido=dias!==null&&dias>30&&(v.estatus||'').toLowerCase()!=='entregado';const aviso=dias!==null&&dias>=20&&dias<=30&&(v.estatus||'').toLowerCase()!=='entregado';const cls=vencido?'list-item alerta':aviso?'list-item aviso':'list-item';return `<div class="${cls}"><div class="list-item-main"><div class="list-item-title">${v.articulo}${v.talla?' · '+v.talla:''}</div><div class="list-item-sub">${v.usuario}${v.fecha?' · '+v.fecha:''}</div>${(v.estatus||'').toLowerCase()!=='entregado'?diasTag(dias):''}<div class="item-actions"><select class="estatus-select" onchange="cambiarEstatus('${v.id}',this.value)"><option ${v.estatus==='apartado'?'selected':''} value="apartado">Apartado</option><option ${v.estatus==='pedido'?'selected':''} value="pedido">Pedido</option><option ${v.estatus==='entregado'?'selected':''} value="entregado">Entregado</option></select><button class="btn-xs btn-del" onclick="eliminarVenta('${v.id}')">Eliminar</button></div></div><div class="list-item-right"><div class="list-item-price">${fmt(v.precio)}</div><div style="font-size:11px;color:var(--text2);margin-top:2px;">${v.color||''}</div></div></div>`;}).join('');}document.getElementById('v-count').textContent=`${f.length} de ${ventas.length} ventas`;}
 
-function renderStock(){const q=(document.getElementById('s-search').value||'').toLowerCase();const f=q?stock.filter(s=>s.articulo.toLowerCase().includes(q)||(s.talla||'').toLowerCase().includes(q)||(s.color||'').toLowerCase().includes(q)):stock;const el=document.getElementById('stock-list');if(!f.length){el.innerHTML='<div class="empty">Sin resultados</div>';}else{el.innerHTML=f.map(s=>`<div class="list-item"><div class="list-item-main"><div class="list-item-title">${s.articulo}</div><div class="list-item-sub">Talla ${s.talla||'—'} · ${s.color||'—'}</div><div class="list-item-sub" style="margin-top:3px;">Costo: ${fmt(s.costo)} · Precio: ${fmt(s.precio)}</div><div class="item-actions"><button class="btn-xs btn-del" onclick="eliminarStock('${s.id}')">Eliminar</button></div></div><div class="list-item-right"><span class="stock-tag ${s.cantidad<=1?'low':''}">${s.cantidad} pza</span></div></div>`).join('');}document.getElementById('s-count').textContent=`${f.length} de ${stock.length} artículos`;}
+const stockCatsOpen={'Mujer':true,'Hombre':true,'Ropa':true,'Accesorios':true};
+
+function categorizarStock(s){
+  const t=(s.talla||'').toString().trim();
+  const tUp=t.toUpperCase();
+  if(!t||t==='-'){return 'Accesorios';}
+  if(['XS','S','M','L','XL','XXL'].includes(tUp)){return 'Ropa';}
+  if(tUp.endsWith('H')){return 'Hombre';}
+  const num=parseFloat(t);
+  if(!isNaN(num)){
+    if(num>=22&&num<=26)return 'Mujer';
+    if(num>=27)return 'Hombre';
+  }
+  return 'Accesorios';
+}
+
+function tallaSort(t){
+  const s=(t||'').toString().trim().toUpperCase();
+  const ropa={'XS':1,'S':2,'M':3,'L':4,'XL':5,'XXL':6};
+  if(ropa[s])return ropa[s];
+  const n=parseFloat(s);
+  return isNaN(n)?99:n;
+}
+
+function toggleCat(cat){
+  stockCatsOpen[cat]=!stockCatsOpen[cat];
+  const body=document.getElementById('scat-'+cat);
+  const arrow=document.getElementById('sarr-'+cat);
+  if(body){body.style.display=stockCatsOpen[cat]?'':'none';}
+  if(arrow){arrow.textContent=stockCatsOpen[cat]?'▾':'▸';}
+}
+window.toggleCat=toggleCat;
+
+function editarStock(id){
+  const s=stock.find(x=>x.id===id);
+  if(!s)return;
+  const el=document.getElementById('si-'+id);
+  if(!el)return;
+  el.innerHTML=`
+    <div style="width:100%;padding:4px 0;">
+      <div style="font-weight:500;font-size:14px;margin-bottom:8px;">${s.articulo}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div><label style="font-size:11px;color:var(--text2);">Talla</label><input id="e-talla-${id}" value="${s.talla||''}" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg2);color:var(--text);"/></div>
+        <div><label style="font-size:11px;color:var(--text2);">Color</label><input id="e-color-${id}" value="${s.color||''}" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg2);color:var(--text);"/></div>
+        <div><label style="font-size:11px;color:var(--text2);">Costo ($)</label><input id="e-costo-${id}" type="number" value="${s.costo||0}" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg2);color:var(--text);"/></div>
+        <div><label style="font-size:11px;color:var(--text2);">Precio ($)</label><input id="e-precio-${id}" type="number" value="${s.precio||0}" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg2);color:var(--text);"/></div>
+        <div><label style="font-size:11px;color:var(--text2);">Cantidad</label><input id="e-cant-${id}" type="number" value="${s.cantidad||1}" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg2);color:var(--text);"/></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-xs btn-success" onclick="guardarEdicionStock('${id}')" style="flex:1;padding:8px;">✓ Guardar</button>
+        <button class="btn-xs" onclick="renderStock()" style="flex:1;padding:8px;">Cancelar</button>
+      </div>
+    </div>`;
+}
+window.editarStock=editarStock;
+
+async function guardarEdicionStock(id){
+  try{
+    await updateDoc(doc(db,'stock',id),{
+      talla:document.getElementById('e-talla-'+id).value.trim(),
+      color:document.getElementById('e-color-'+id).value.trim(),
+      costo:parseFloat(document.getElementById('e-costo-'+id).value)||0,
+      precio:parseFloat(document.getElementById('e-precio-'+id).value)||0,
+      cantidad:parseInt(document.getElementById('e-cant-'+id).value)||1,
+    });
+    toast('Stock actualizado');
+  }catch(e){toast('Error al guardar');}
+}
+window.guardarEdicionStock=guardarEdicionStock;
+
+function renderStock(){
+  const q=(document.getElementById('s-search').value||'').toLowerCase();
+  const f=q?stock.filter(s=>s.articulo.toLowerCase().includes(q)||(s.talla||'').toLowerCase().includes(q)||(s.color||'').toLowerCase().includes(q)):stock;
+  const el=document.getElementById('stock-list');
+  if(!f.length){el.innerHTML='<div class="empty">Sin resultados</div>';document.getElementById('s-count').textContent='0 artículos';return;}
+
+  const cats={'Mujer':[],'Hombre':[],'Ropa':[],'Accesorios':[]};
+  f.forEach(s=>{const c=categorizarStock(s);cats[c].push(s);});
+  Object.keys(cats).forEach(k=>cats[k].sort((a,b)=>tallaSort(a.talla)-tallaSort(b.talla)));
+
+  const itemHTML=s=>`<div class="list-item" id="si-${s.id}"><div class="list-item-main"><div class="list-item-title">${s.articulo}</div><div class="list-item-sub">Talla ${s.talla||'—'} · ${s.color||'—'}</div><div class="list-item-sub" style="margin-top:3px;">Costo: ${fmt(s.costo)} · Precio: ${fmt(s.precio)}</div><div class="item-actions"><button class="btn-xs" onclick="editarStock('${s.id}')">✏️ Editar</button><button class="btn-xs btn-del" onclick="eliminarStock('${s.id}')">Eliminar</button></div></div><div class="list-item-right"><span class="stock-tag ${s.cantidad<=1?'low':''}">${s.cantidad} pza</span></div></div>`;
+
+  const icons={'Mujer':'👟','Hombre':'👞','Ropa':'👕','Accesorios':'👜'};
+  let html='';
+  Object.entries(cats).forEach(([cat,items])=>{
+    if(!items.length)return;
+    const open=stockCatsOpen[cat]!==false;
+    html+=`<div style="margin:0 -14px;border-bottom:1px solid var(--border);">
+      <div onclick="toggleCat('${cat}')" style="padding:10px 14px;background:var(--bg2);font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <span>${icons[cat]} ${cat} <span style="font-weight:400;color:var(--text3);">(${items.length})</span></span>
+        <span id="sarr-${cat}" style="font-size:14px;">${open?'▾':'▸'}</span>
+      </div>
+      <div id="scat-${cat}" style="padding:0 14px;display:${open?'':'none'};">${items.map(itemHTML).join('')}</div>
+    </div>`;
+  });
+  el.innerHTML=html;
+  document.getElementById('s-count').textContent=`${f.length} de ${stock.length} artículos`;
+}
 
 function renderCamino(){const q=(document.getElementById('cam-search').value||'').toLowerCase();const f=camino.filter(c=>!q||c.articulo.toLowerCase().includes(q)||(c.dueno||'').toLowerCase().includes(q)||(c.talla||'').toLowerCase().includes(q));const el=document.getElementById('camino-list');if(!f.length){el.innerHTML='<div class="empty">Sin pedidos en camino</div>';}else{el.innerHTML=f.map(c=>`<div class="list-item"><div class="list-item-main"><div class="list-item-title">${c.articulo}${c.talla?' · '+c.talla:''}</div><div class="list-item-sub">${c.dueno?'👤 '+c.dueno+' · ':''}Comprado: ${c.fecha||'—'}</div><div class="item-actions"><button class="btn-xs btn-success" onclick="marcarLlegada('${c.id}')">✓ Llegó</button><button class="btn-xs btn-del" onclick="eliminarCamino('${c.id}')">Eliminar</button></div></div><div class="list-item-right"><div class="list-item-price">${fmt(c.precio)}</div><span class="badge camino">En camino</span></div></div>`).join('');}document.getElementById('cam-count').textContent=`${f.length} de ${camino.length} pedidos`;}
 
