@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -88,23 +89,108 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mes-selector{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
 .mes-selector select{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg2);color:var(--text);outline:none;}
 .mes-nav{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--text);cursor:pointer;font-size:16px;}
+.gasto-tag{font-size:11px;background:var(--red-bg);color:var(--red);padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block;}
+.divider{border:none;border-top:1px solid var(--border);margin:12px 0;}
 </style>
 </head>
 <body>
 <div class="app">
 <div class="header"><h1>Camila's Sneakers</h1><span id="sync-label"><span class="sync-dot"></span>cargando...</span></div>
-<div id="page-resumen" class="page active"><div style="padding-top:14px;"><div class="metric-grid" id="metrics"></div><div id="alertas-banner"></div><div class="card"><div class="card-title">Top artículos vendidos</div><div id="top-items"><div class="loading">Cargando...</div></div></div><div class="card"><div class="card-title">Por estatus</div><div id="estatus-breakdown"></div></div></div></div>
-<div id="page-nueva" class="page"><div style="padding-top:14px;">
-<div class="card"><div class="card-title">Nueva venta</div><div class="form-group"><label>Cliente / usuario</label><input type="text" id="n-usuario" placeholder="@usuario o nombre" autocomplete="off"/></div><div class="form-group"><label>Fecha</label><input type="date" id="n-fecha"/></div><div class="form-group"><label>Artículo</label><input type="text" id="n-articulo" placeholder="ej. On Cloudtilit" list="art-list" autocomplete="off" oninput="autoFillFromStock()"/><datalist id="art-list"></datalist></div><div class="form-row"><div class="form-group"><label>Talla</label><input type="text" id="n-talla" placeholder="ej. 5mx" oninput="autoFillFromStock()"/></div><div class="form-group"><label>Color</label><input type="text" id="n-color" placeholder="ej. negro" oninput="autoFillFromStock()"/></div></div><div class="form-row"><div class="form-group"><label>Costo ($)</label><input type="number" id="n-costo" placeholder="0" inputmode="numeric"/></div><div class="form-group"><label>Precio ($)</label><input type="number" id="n-precio" placeholder="0" inputmode="numeric"/></div></div><div class="form-group"><label>Estatus</label><select id="n-estatus"><option value="apartado">Apartado</option><option value="pedido">Pedido</option><option value="entregado">Entregado</option></select></div><div id="stock-hint" style="font-size:12px;color:var(--green);margin-bottom:8px;display:none;"></div><button class="btn btn-primary" onclick="guardarVenta()">Guardar venta</button></div>
-<div class="card"><div class="card-title">Agregar stock</div><div class="form-group"><label>Artículo</label><input type="text" id="s-articulo" placeholder="ej. New Balance 9060" list="art-list" autocomplete="off"/></div><div class="form-row"><div class="form-group"><label>Talla</label><input type="text" id="s-talla" placeholder="ej. 25mx"/></div><div class="form-group"><label>Color</label><input type="text" id="s-color" placeholder="ej. blanco"/></div></div><div class="form-row"><div class="form-group"><label>Costo ($)</label><input type="number" id="s-costo" placeholder="0" inputmode="numeric"/></div><div class="form-group"><label>Precio ($)</label><input type="number" id="s-precio" placeholder="0" inputmode="numeric"/></div></div><div class="form-group"><label>Cantidad</label><input type="number" id="s-cantidad" value="1" min="1" inputmode="numeric"/></div><button class="btn btn-primary" onclick="guardarStock()">Agregar al stock</button></div>
-<div class="card"><div class="card-title">📦 Registrar pedido en camino</div><div class="form-group"><label>Artículo</label><input type="text" id="c-articulo" placeholder="ej. On Cloudtilit" list="art-list" autocomplete="off"/></div><div class="form-row"><div class="form-group"><label>Talla</label><input type="text" id="c-talla" placeholder="ej. 5mx"/></div><div class="form-group"><label>Color</label><input type="text" id="c-color" placeholder="ej. negro"/></div></div><div class="form-row"><div class="form-group"><label>Costo ($)</label><input type="number" id="c-costo" placeholder="0" inputmode="numeric"/></div><div class="form-group"><label>Precio ($)</label><input type="number" id="c-precio" placeholder="0" inputmode="numeric"/></div></div><div class="form-group"><label>Fecha de compra</label><input type="date" id="c-fecha"/></div><div class="form-group"><label>¿Tiene dueño? (opcional)</label><input type="text" id="c-dueno" placeholder="Nombre de la clienta" autocomplete="off"/></div><button class="btn btn-primary" onclick="guardarCamino()">Registrar en camino</button></div>
-<div class="card"><div class="card-title">💸 Registrar gasto</div><div class="form-group"><label>Descripción</label><input type="text" id="g-desc" placeholder="ej. Paquetería DHL" autocomplete="off"/></div><div class="form-group"><label>Categoría</label><select id="g-cat"><option value="Paquetería">Paquetería</option><option value="Envíos">Envíos</option><option value="Materiales">Materiales</option><option value="Publicidad">Publicidad</option><option value="Comisiones">Comisiones</option><option value="Otros">Otros</option></select></div><div class="form-row"><div class="form-group"><label>Monto ($)</label><input type="number" id="g-monto" placeholder="0" inputmode="numeric"/></div><div class="form-group"><label>Fecha</label><input type="date" id="g-fecha"/></div></div><button class="btn btn-primary" onclick="guardarGasto()">Registrar gasto</button></div>
+
+<!-- RESUMEN -->
+<div id="page-resumen" class="page active"><div style="padding-top:14px;">
+  <div class="metric-grid" id="metrics"></div>
+  <div id="alertas-banner"></div>
+  <div class="card"><div class="card-title">Top artículos vendidos</div><div id="top-items"><div class="loading">Cargando...</div></div></div>
+  <div class="card"><div class="card-title">Por estatus</div><div id="estatus-breakdown"></div></div>
 </div></div>
-<div id="page-ventas" class="page"><div style="padding-top:14px;"><input class="search-input" type="text" id="v-search" placeholder="Buscar cliente o artículo..." oninput="renderVentas()"/><div class="filter-row"><button class="filter-chip active" onclick="setFiltroV('todos')" id="fv-todos">Todos</button><button class="filter-chip" onclick="setFiltroV('apartado')" id="fv-apartado">Apartados</button><button class="filter-chip" onclick="setFiltroV('pedido')" id="fv-pedido">Pedidos</button><button class="filter-chip" onclick="setFiltroV('entregado')" id="fv-entregado">Entregados</button><button class="filter-chip" onclick="setFiltroV('vencido')" id="fv-vencido">⚠️ Vencidos</button></div><div class="card" style="padding:0 14px;"><div id="ventas-list"><div class="loading">Cargando...</div></div></div><div id="v-count" style="font-size:12px;color:var(--text3);margin-top:6px;text-align:center;"></div></div></div>
-<div id="page-stock" class="page"><div style="padding-top:14px;"><input class="search-input" type="text" id="s-search" placeholder="Buscar artículo, talla o color..." oninput="renderStock()"/><div class="card" style="padding:0 14px;"><div id="stock-list"><div class="loading">Cargando...</div></div></div><div id="s-count" style="font-size:12px;color:var(--text3);margin-top:6px;text-align:center;"></div></div></div>
-<div id="page-camino" class="page"><div style="padding-top:14px;"><input class="search-input" type="text" id="cam-search" placeholder="Buscar artículo o dueño..." oninput="renderCamino()"/><div class="card" style="padding:0 14px;"><div id="camino-list"><div class="loading">Cargando...</div></div></div><div id="cam-count" style="font-size:12px;color:var(--text3);margin-top:6px;text-align:center;"></div></div></div>
-<div id="page-mes" class="page"><div style="padding-top:14px;"><div class="mes-selector"><button class="mes-nav" onclick="cambiarMes(-1)">‹</button><select id="mes-select" onchange="renderMes()"></select><button class="mes-nav" onclick="cambiarMes(1)">›</button></div><div class="metric-grid" id="mes-metrics"></div><div class="card"><div class="card-title">Ventas del mes</div><div id="mes-ventas"></div></div><div class="card"><div class="card-title">Gastos del mes</div><div id="mes-gastos"></div></div></div></div>
+
+<!-- NUEVO -->
+<div id="page-nueva" class="page"><div style="padding-top:14px;">
+  <div class="card"><div class="card-title">Nueva venta</div>
+    <div class="form-group"><label>Cliente / usuario</label><input type="text" id="n-usuario" placeholder="@usuario o nombre" autocomplete="off"/></div>
+    <div class="form-group"><label>Fecha</label><input type="date" id="n-fecha"/></div>
+    <div class="form-group"><label>Artículo</label><input type="text" id="n-articulo" placeholder="ej. On Cloudtilit" list="art-list" autocomplete="off" oninput="autoFillFromStock()"/><datalist id="art-list"></datalist></div>
+    <div class="form-row"><div class="form-group"><label>Talla</label><input type="text" id="n-talla" placeholder="ej. 5mx" oninput="autoFillFromStock()"/></div><div class="form-group"><label>Color</label><input type="text" id="n-color" placeholder="ej. negro" oninput="autoFillFromStock()"/></div></div>
+    <div class="form-row"><div class="form-group"><label>Costo ($)</label><input type="number" id="n-costo" placeholder="0" inputmode="numeric"/></div><div class="form-group"><label>Precio ($)</label><input type="number" id="n-precio" placeholder="0" inputmode="numeric"/></div></div>
+    <div class="form-group"><label>Estatus</label><select id="n-estatus"><option value="apartado">Apartado</option><option value="pedido">Pedido</option><option value="entregado">Entregado</option></select></div>
+    <div id="stock-hint" style="font-size:12px;color:var(--green);margin-bottom:8px;display:none;"></div>
+    <button class="btn btn-primary" onclick="guardarVenta()">Guardar venta</button>
+  </div>
+  <div class="card"><div class="card-title">Agregar stock</div>
+    <div class="form-group"><label>Artículo</label><input type="text" id="s-articulo" placeholder="ej. New Balance 9060" list="art-list" autocomplete="off"/></div>
+    <div class="form-row"><div class="form-group"><label>Talla</label><input type="text" id="s-talla" placeholder="ej. 25mx"/></div><div class="form-group"><label>Color</label><input type="text" id="s-color" placeholder="ej. blanco"/></div></div>
+    <div class="form-row"><div class="form-group"><label>Costo ($)</label><input type="number" id="s-costo" placeholder="0" inputmode="numeric"/></div><div class="form-group"><label>Precio ($)</label><input type="number" id="s-precio" placeholder="0" inputmode="numeric"/></div></div>
+    <div class="form-group"><label>Cantidad</label><input type="number" id="s-cantidad" value="1" min="1" inputmode="numeric"/></div>
+    <button class="btn btn-primary" onclick="guardarStock()">Agregar al stock</button>
+  </div>
+  <div class="card"><div class="card-title">📦 Registrar pedido en camino</div>
+    <div class="form-group"><label>Artículo</label><input type="text" id="c-articulo" placeholder="ej. On Cloudtilit" list="art-list" autocomplete="off"/></div>
+    <div class="form-row"><div class="form-group"><label>Talla</label><input type="text" id="c-talla" placeholder="ej. 5mx"/></div><div class="form-group"><label>Color</label><input type="text" id="c-color" placeholder="ej. negro"/></div></div>
+    <div class="form-row"><div class="form-group"><label>Costo ($)</label><input type="number" id="c-costo" placeholder="0" inputmode="numeric"/></div><div class="form-group"><label>Precio ($)</label><input type="number" id="c-precio" placeholder="0" inputmode="numeric"/></div></div>
+    <div class="form-group"><label>Fecha de compra</label><input type="date" id="c-fecha"/></div>
+    <div class="form-group"><label>¿Tiene dueño? (opcional)</label><input type="text" id="c-dueno" placeholder="Nombre de la clienta" autocomplete="off"/></div>
+    <button class="btn btn-primary" onclick="guardarCamino()">Registrar en camino</button>
+  </div>
+  <div class="card"><div class="card-title">💸 Registrar gasto</div>
+    <div class="form-group"><label>Descripción</label><input type="text" id="g-desc" placeholder="ej. Paquetería DHL" autocomplete="off"/></div>
+    <div class="form-group"><label>Categoría</label>
+      <select id="g-cat">
+        <option value="Paquetería">Paquetería</option>
+        <option value="Envíos">Envíos</option>
+        <option value="Materiales">Materiales</option>
+        <option value="Publicidad">Publicidad</option>
+        <option value="Comisiones">Comisiones</option>
+        <option value="Otros">Otros</option>
+      </select>
+    </div>
+    <div class="form-row"><div class="form-group"><label>Monto ($)</label><input type="number" id="g-monto" placeholder="0" inputmode="numeric"/></div><div class="form-group"><label>Fecha</label><input type="date" id="g-fecha"/></div></div>
+    <button class="btn btn-primary" onclick="guardarGasto()">Registrar gasto</button>
+  </div>
+</div></div>
+
+<!-- VENTAS -->
+<div id="page-ventas" class="page"><div style="padding-top:14px;">
+  <input class="search-input" type="text" id="v-search" placeholder="Buscar cliente o artículo..." oninput="renderVentas()"/>
+  <div class="filter-row">
+    <button class="filter-chip active" onclick="setFiltroV('todos')" id="fv-todos">Todos</button>
+    <button class="filter-chip" onclick="setFiltroV('apartado')" id="fv-apartado">Apartados</button>
+    <button class="filter-chip" onclick="setFiltroV('pedido')" id="fv-pedido">Pedidos</button>
+    <button class="filter-chip" onclick="setFiltroV('entregado')" id="fv-entregado">Entregados</button>
+    <button class="filter-chip" onclick="setFiltroV('vencido')" id="fv-vencido">⚠️ Vencidos</button>
+  </div>
+  <div class="card" style="padding:0 14px;"><div id="ventas-list"><div class="loading">Cargando...</div></div></div>
+  <div id="v-count" style="font-size:12px;color:var(--text3);margin-top:6px;text-align:center;"></div>
+</div></div>
+
+<!-- STOCK -->
+<div id="page-stock" class="page"><div style="padding-top:14px;">
+  <input class="search-input" type="text" id="s-search" placeholder="Buscar artículo, talla o color..." oninput="renderStock()"/>
+  <div class="card" style="padding:0 14px;"><div id="stock-list"><div class="loading">Cargando...</div></div></div>
+  <div id="s-count" style="font-size:12px;color:var(--text3);margin-top:6px;text-align:center;"></div>
+</div></div>
+
+<!-- EN CAMINO -->
+<div id="page-camino" class="page"><div style="padding-top:14px;">
+  <input class="search-input" type="text" id="cam-search" placeholder="Buscar artículo o dueño..." oninput="renderCamino()"/>
+  <div class="card" style="padding:0 14px;"><div id="camino-list"><div class="loading">Cargando...</div></div></div>
+  <div id="cam-count" style="font-size:12px;color:var(--text3);margin-top:6px;text-align:center;"></div>
+</div></div>
+
+<!-- MES -->
+<div id="page-mes" class="page"><div style="padding-top:14px;">
+  <div class="mes-selector">
+    <button class="mes-nav" onclick="cambiarMes(-1)">‹</button>
+    <select id="mes-select" onchange="renderMes()"></select>
+    <button class="mes-nav" onclick="cambiarMes(1)">›</button>
+  </div>
+  <div class="metric-grid" id="mes-metrics"></div>
+  <div class="card"><div class="card-title">Ventas del mes</div><div id="mes-ventas"></div></div>
+  <div class="card"><div class="card-title">Gastos del mes</div><div id="mes-gastos"></div></div>
+</div></div>
+
 </div>
+
 <nav class="nav">
 <button class="nav-btn active" onclick="showPage('resumen')" id="nav-resumen"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Resumen</button>
 <button class="nav-btn" onclick="showPage('nueva')" id="nav-nueva"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Nuevo</button>
@@ -113,44 +199,61 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <button class="nav-btn" onclick="showPage('camino')" id="nav-camino"><svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/><circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/></svg>Camino</button>
 <button class="nav-btn" onclick="showPage('mes')" id="nav-mes"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Por mes</button>
 </nav>
+
 <div id="toast" class="toast"></div>
 <div class="modal-overlay" id="stock-modal"><div class="modal"><h3>Descontar del stock</h3><p id="modal-msg"></p><div class="modal-btns"><button onclick="closeModal(false)">No</button><button class="btn-yes" onclick="closeModal(true)">Sí, descontar</button></div></div></div>
 <div class="modal-overlay" id="llegada-modal"><div class="modal"><h3>¿A dónde va este artículo?</h3><p id="llegada-msg"></p><div class="modal-btns"><button onclick="closeLlegada('stock')">Al stock</button><button class="btn-yes" onclick="closeLlegada('venta')">A ventas</button></div></div></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 const firebaseConfig={apiKey:"AIzaSyByrlTWQ0IoCv-osQwaZ7P5CS0_iWGGqEY",authDomain:"camilas-sneakers.firebaseapp.com",projectId:"camilas-sneakers",storageBucket:"camilas-sneakers.firebasestorage.app",messagingSenderId:"806691982522",appId:"1:806691982522:web:ffa1198ed6991726704683"};
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);
+
 let ventas=[],stock=[],camino=[],gastos=[],filtroV='todos',pendingVenta=null,pendingStockItem=null,pendingLlegada=null;
 const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
 function fmt(n){return n>0?'$'+Number(n).toLocaleString('es-MX'):'—';}
 function fmtN(n){return '$'+Number(n||0).toLocaleString('es-MX');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function diasDesde(fecha){if(!fecha)return null;const hoy=new Date();hoy.setHours(0,0,0,0);const f=new Date(fecha+'T00:00:00');return Math.floor((hoy-f)/(1000*60*60*24));}
 function diasTag(dias){if(dias===null)return '';if(dias>30)return `<span class="dias-tag vencido">⚠️ ${dias} días — VENCIDO</span>`;if(dias>=20)return `<span class="dias-tag aviso">⚡ ${dias}/30 días</span>`;return `<span class="dias-tag ok">${dias}/30 días</span>`;}
-function mesKey(fecha){if(!fecha)return '';return fecha.substring(0,7);}
+function mesKey(fecha){if(!fecha)return '';return fecha.substring(0,7);}// yyyy-mm
+
 function updateAutocomplete(){const all=[...new Set([...ventas.map(v=>v.articulo),...stock.map(s=>s.articulo),...camino.map(c=>c.articulo)])].filter(Boolean).sort();document.getElementById('art-list').innerHTML=all.map(a=>`<option value="${a}">`).join('');}
 function syncLabel(){const total=stock.reduce((a,s)=>a+(s.cantidad||1),0);document.getElementById('sync-label').innerHTML=`<span class="sync-dot"></span>${ventas.length} ventas · ${total} stock`;}
 function findStockItem(articulo,talla,color){return stock.find(s=>s.articulo.toLowerCase()===articulo.toLowerCase()&&(s.talla||'').toLowerCase()===(talla||'').toLowerCase()&&(s.color||'').toLowerCase()===(color||'').toLowerCase());}
+
 function autoFillFromStock(){const a=document.getElementById('n-articulo').value.trim();const t=document.getElementById('n-talla').value.trim();const c=document.getElementById('n-color').value.trim();const hint=document.getElementById('stock-hint');if(!a){hint.style.display='none';return;}const match=findStockItem(a,t,c);if(match){if(!document.getElementById('n-costo').value&&match.costo)document.getElementById('n-costo').value=match.costo;if(!document.getElementById('n-precio').value&&match.precio)document.getElementById('n-precio').value=match.precio;hint.style.display='block';hint.textContent=`En stock: ${match.cantidad} pza disponible(s)`;}else{hint.style.display='none';}}
 window.autoFillFromStock=autoFillFromStock;
+
 async function guardarVenta(){const u=document.getElementById('n-usuario').value.trim();const a=document.getElementById('n-articulo').value.trim();if(!u||!a){toast('Falta cliente o artículo');return;}const v={usuario:u,fecha:document.getElementById('n-fecha').value,articulo:a,talla:document.getElementById('n-talla').value.trim(),color:document.getElementById('n-color').value.trim(),costo:parseFloat(document.getElementById('n-costo').value)||0,precio:parseFloat(document.getElementById('n-precio').value)||0,estatus:document.getElementById('n-estatus').value,ts:Date.now()};const stockItem=findStockItem(v.articulo,v.talla,v.color);if(stockItem&&stockItem.cantidad>0){pendingVenta=v;pendingStockItem=stockItem;document.getElementById('modal-msg').textContent=`¿Descontar "${v.articulo}${v.talla?' · '+v.talla:''}" del stock? Quedarían ${stockItem.cantidad-1} pza.`;document.getElementById('stock-modal').classList.add('show');}else{await commitVenta(v,false);}}
 window.guardarVenta=guardarVenta;
+
 function closeModal(descontar){document.getElementById('stock-modal').classList.remove('show');if(pendingVenta){const pv=pendingVenta,ps=pendingStockItem;pendingVenta=null;pendingStockItem=null;commitVenta(pv,descontar,ps);}}
 window.closeModal=closeModal;
+
 async function commitVenta(v,descontar,si){try{await addDoc(collection(db,'ventas'),v);if(descontar&&si){const nq=(si.cantidad||1)-1;if(nq<=0){await deleteDoc(doc(db,'stock',si.id));}else{await updateDoc(doc(db,'stock',si.id),{cantidad:nq});}toast('Venta guardada · Stock actualizado');}else{toast('Venta guardada');}['n-usuario','n-articulo','n-talla','n-color','n-costo','n-precio'].forEach(id=>document.getElementById(id).value='');document.getElementById('n-estatus').value='apartado';document.getElementById('stock-hint').style.display='none';}catch(e){toast('Error al guardar');}}
+
 async function guardarStock(){const a=document.getElementById('s-articulo').value.trim();if(!a){toast('Falta nombre del artículo');return;}const t=document.getElementById('s-talla').value.trim();const c=document.getElementById('s-color').value.trim();const q=parseInt(document.getElementById('s-cantidad').value)||1;const ex=findStockItem(a,t,c);try{if(ex){await updateDoc(doc(db,'stock',ex.id),{cantidad:(ex.cantidad||1)+q});}else{await addDoc(collection(db,'stock'),{articulo:a,talla:t,color:c,costo:parseFloat(document.getElementById('s-costo').value)||0,precio:parseFloat(document.getElementById('s-precio').value)||0,cantidad:q,ts:Date.now()});}['s-articulo','s-talla','s-color','s-costo','s-precio'].forEach(id=>document.getElementById(id).value='');document.getElementById('s-cantidad').value='1';toast('Stock actualizado');}catch(e){toast('Error al guardar');}}
 window.guardarStock=guardarStock;
+
 async function guardarCamino(){const a=document.getElementById('c-articulo').value.trim();if(!a){toast('Falta nombre del artículo');return;}try{await addDoc(collection(db,'camino'),{articulo:a,talla:document.getElementById('c-talla').value.trim(),color:document.getElementById('c-color').value.trim(),costo:parseFloat(document.getElementById('c-costo').value)||0,precio:parseFloat(document.getElementById('c-precio').value)||0,fecha:document.getElementById('c-fecha').value,dueno:document.getElementById('c-dueno').value.trim(),ts:Date.now()});['c-articulo','c-talla','c-color','c-costo','c-precio','c-dueno'].forEach(id=>document.getElementById(id).value='');document.getElementById('c-fecha').value=new Date().toISOString().split('T')[0];toast('Pedido registrado en camino');}catch(e){toast('Error al guardar');}}
 window.guardarCamino=guardarCamino;
+
 async function guardarGasto(){const desc=document.getElementById('g-desc').value.trim();const monto=parseFloat(document.getElementById('g-monto').value)||0;if(!desc||!monto){toast('Falta descripción o monto');return;}try{await addDoc(collection(db,'gastos'),{descripcion:desc,categoria:document.getElementById('g-cat').value,monto:monto,fecha:document.getElementById('g-fecha').value,ts:Date.now()});document.getElementById('g-desc').value='';document.getElementById('g-monto').value='';toast('Gasto registrado');}catch(e){toast('Error al guardar');}}
 window.guardarGasto=guardarGasto;
+
 async function eliminarGasto(id){try{await deleteDoc(doc(db,'gastos',id));toast('Eliminado');}catch(e){toast('Error');}}
 window.eliminarGasto=eliminarGasto;
+
 async function marcarLlegada(id){const item=camino.find(c=>c.id===id);if(!item)return;pendingLlegada=item;const txt=item.dueno?`"${item.articulo}" tiene dueño: ${item.dueno}. ¿Lo mandas a ventas o al stock?`:`"${item.articulo}" no tiene dueño. ¿Al stock o a ventas?`;document.getElementById('llegada-msg').textContent=txt;document.getElementById('llegada-modal').classList.add('show');}
 window.marcarLlegada=marcarLlegada;
+
 async function closeLlegada(destino){document.getElementById('llegada-modal').classList.remove('show');if(!pendingLlegada)return;const item=pendingLlegada;pendingLlegada=null;try{if(destino==='stock'){const ex=findStockItem(item.articulo,item.talla,item.color);if(ex){await updateDoc(doc(db,'stock',ex.id),{cantidad:(ex.cantidad||1)+1});}else{await addDoc(collection(db,'stock'),{articulo:item.articulo,talla:item.talla,color:item.color,costo:item.costo||0,precio:item.precio||0,cantidad:1,ts:Date.now()});}toast('Movido al stock');}else{await addDoc(collection(db,'ventas'),{usuario:item.dueno||'Sin asignar',fecha:new Date().toISOString().split('T')[0],articulo:item.articulo,talla:item.talla,color:item.color,costo:item.costo||0,precio:item.precio||0,estatus:'apartado',ts:Date.now()});toast('Movido a ventas');}await deleteDoc(doc(db,'camino',item.id));}catch(e){toast('Error');}}
 window.closeLlegada=closeLlegada;
+
 async function eliminarVenta(id){try{await deleteDoc(doc(db,'ventas',id));toast('Eliminado');}catch(e){toast('Error');}}
 window.eliminarVenta=eliminarVenta;
 async function cambiarEstatus(id,nuevo){try{await updateDoc(doc(db,'ventas',id),{estatus:nuevo});toast('Estatus actualizado');}catch(e){toast('Error');}}
@@ -159,24 +262,102 @@ async function eliminarStock(id){try{await deleteDoc(doc(db,'stock',id));toast('
 window.eliminarStock=eliminarStock;
 async function eliminarCamino(id){try{await deleteDoc(doc(db,'camino',id));toast('Eliminado');}catch(e){toast('Error');}}
 window.eliminarCamino=eliminarCamino;
+
 function setFiltroV(f){filtroV=f;['todos','apartado','pedido','entregado','vencido'].forEach(id=>{document.getElementById('fv-'+id).classList.toggle('active',id===f);});renderVentas();}
 window.setFiltroV=setFiltroV;
+
 function renderVentas(){const q=(document.getElementById('v-search').value||'').toLowerCase();const f=ventas.filter(v=>{const dias=diasDesde(v.fecha);const vencido=dias!==null&&dias>30&&(v.estatus||'').toLowerCase()!=='entregado';const mq=!q||v.usuario.toLowerCase().includes(q)||v.articulo.toLowerCase().includes(q)||(v.color||'').toLowerCase().includes(q);if(filtroV==='vencido')return mq&&vencido;if(filtroV==='todos')return mq;return mq&&(v.estatus||'').toLowerCase()===filtroV;});const el=document.getElementById('ventas-list');if(!f.length){el.innerHTML='<div class="empty">Sin resultados</div>';}else{el.innerHTML=f.map(v=>{const dias=diasDesde(v.fecha);const vencido=dias!==null&&dias>30&&(v.estatus||'').toLowerCase()!=='entregado';const aviso=dias!==null&&dias>=20&&dias<=30&&(v.estatus||'').toLowerCase()!=='entregado';const cls=vencido?'list-item alerta':aviso?'list-item aviso':'list-item';return `<div class="${cls}"><div class="list-item-main"><div class="list-item-title">${v.articulo}${v.talla?' · '+v.talla:''}</div><div class="list-item-sub">${v.usuario}${v.fecha?' · '+v.fecha:''}</div>${(v.estatus||'').toLowerCase()!=='entregado'?diasTag(dias):''}<div class="item-actions"><select class="estatus-select" onchange="cambiarEstatus('${v.id}',this.value)"><option ${v.estatus==='apartado'?'selected':''} value="apartado">Apartado</option><option ${v.estatus==='pedido'?'selected':''} value="pedido">Pedido</option><option ${v.estatus==='entregado'?'selected':''} value="entregado">Entregado</option></select><button class="btn-xs btn-del" onclick="eliminarVenta('${v.id}')">Eliminar</button></div></div><div class="list-item-right"><div class="list-item-price">${fmt(v.precio)}</div><div style="font-size:11px;color:var(--text2);margin-top:2px;">${v.color||''}</div></div></div>`;}).join('');}document.getElementById('v-count').textContent=`${f.length} de ${ventas.length} ventas`;}
-function renderStock(){const q=(document.getElementById('s-search').value||'').toLowerCase();const f=stock.filter(s=>!q||s.articulo.toLowerCase().includes(q)||(s.talla||'').toLowerCase().includes(q)||(s.color||'').toLowerCase().includes(q));const el=document.getElementById('stock-list');if(!f.length){el.innerHTML='<div class="empty">Sin resultados</div>';}else{el.innerHTML=f.map(s=>`<div class="list-item"><div class="list-item-main"><div class="list-item-title">${s.articulo}</div><div class="list-item-sub">Talla ${s.talla||'—'} · ${s.color||'—'}</div><div class="item-actions"><button class="btn-xs btn-del" onclick="eliminarStock('${s.id}')">Eliminar</button></div></div><div class="list-item-right"><div class="list-item-price">${fmt(s.precio)}</div><span class="stock-tag ${s.cantidad<=1?'low':''}">${s.cantidad} pza</span></div></div>`).join('');}document.getElementById('s-count').textContent=`${f.length} de ${stock.length} artículos`;}
+
+function renderStock(){const q=(document.getElementById('s-search').value||'').toLowerCase();const f=q?stock.filter(s=>s.articulo.toLowerCase().includes(q)||(s.talla||'').toLowerCase().includes(q)||(s.color||'').toLowerCase().includes(q)):stock;const el=document.getElementById('stock-list');if(!f.length){el.innerHTML='<div class="empty">Sin resultados</div>';}else{el.innerHTML=f.map(s=>`<div class="list-item"><div class="list-item-main"><div class="list-item-title">${s.articulo}</div><div class="list-item-sub">Talla ${s.talla||'—'} · ${s.color||'—'}</div><div class="list-item-sub" style="margin-top:3px;">Costo: ${fmt(s.costo)} · Precio: ${fmt(s.precio)}</div><div class="item-actions"><button class="btn-xs btn-del" onclick="eliminarStock('${s.id}')">Eliminar</button></div></div><div class="list-item-right"><span class="stock-tag ${s.cantidad<=1?'low':''}">${s.cantidad} pza</span></div></div>`).join('');}document.getElementById('s-count').textContent=`${f.length} de ${stock.length} artículos`;}
+
 function renderCamino(){const q=(document.getElementById('cam-search').value||'').toLowerCase();const f=camino.filter(c=>!q||c.articulo.toLowerCase().includes(q)||(c.dueno||'').toLowerCase().includes(q)||(c.talla||'').toLowerCase().includes(q));const el=document.getElementById('camino-list');if(!f.length){el.innerHTML='<div class="empty">Sin pedidos en camino</div>';}else{el.innerHTML=f.map(c=>`<div class="list-item"><div class="list-item-main"><div class="list-item-title">${c.articulo}${c.talla?' · '+c.talla:''}</div><div class="list-item-sub">${c.dueno?'👤 '+c.dueno+' · ':''}Comprado: ${c.fecha||'—'}</div><div class="item-actions"><button class="btn-xs btn-success" onclick="marcarLlegada('${c.id}')">✓ Llegó</button><button class="btn-xs btn-del" onclick="eliminarCamino('${c.id}')">Eliminar</button></div></div><div class="list-item-right"><div class="list-item-price">${fmt(c.precio)}</div><span class="badge camino">En camino</span></div></div>`).join('');}document.getElementById('cam-count').textContent=`${f.length} de ${camino.length} pedidos`;}
-function buildMesOptions(){const keys=new Set();const hoy=new Date();for(let i=0;i<12;i++){const d=new Date(hoy.getFullYear(),hoy.getMonth()-i,1);keys.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);}[...ventas,...gastos].forEach(x=>{if(x.fecha)keys.add(mesKey(x.fecha));});const sorted=[...keys].sort().reverse();const sel=document.getElementById('mes-select');const current=sel.value||`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;sel.innerHTML=sorted.map(k=>{const[y,m]=k.split('-');return `<option value="${k}" ${k===current?'selected':''}>${meses[parseInt(m)-1]} ${y}</option>`;}).join('');}
-function cambiarMes(dir){const sel=document.getElementById('mes-select');const opts=[...sel.options];const idx=opts.findIndex(o=>o.value===sel.value);const newIdx=idx-dir;if(newIdx>=0&&newIdx<opts.length){sel.value=opts[newIdx].value;renderMes();}}
+
+// ---- MES ----
+function buildMesOptions(){
+  const keys=new Set();
+  const hoy=new Date();
+  // Últimos 12 meses siempre disponibles
+  for(let i=0;i<12;i++){const d=new Date(hoy.getFullYear(),hoy.getMonth()-i,1);keys.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);}
+  // + meses con datos
+  [...ventas,...gastos].forEach(x=>{if(x.fecha)keys.add(mesKey(x.fecha));});
+  const sorted=[...keys].sort().reverse();
+  const sel=document.getElementById('mes-select');
+  const current=sel.value||`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+  sel.innerHTML=sorted.map(k=>{const[y,m]=k.split('-');return `<option value="${k}" ${k===current?'selected':''}>${meses[parseInt(m)-1]} ${y}</option>`;}).join('');
+}
+
+function cambiarMes(dir){
+  const sel=document.getElementById('mes-select');
+  const opts=[...sel.options];
+  const idx=opts.findIndex(o=>o.value===sel.value);
+  const newIdx=idx-dir;
+  if(newIdx>=0&&newIdx<opts.length){sel.value=opts[newIdx].value;renderMes();}
+}
 window.cambiarMes=cambiarMes;
-function renderMes(){const key=document.getElementById('mes-select').value;if(!key)return;const mv=ventas.filter(v=>mesKey(v.fecha)===key);const mg=gastos.filter(g=>mesKey(g.fecha)===key);const entregados=mv.filter(v=>(v.estatus||'').toLowerCase()==='entregado');const ingresos=entregados.reduce((a,v)=>a+(v.precio||0),0);const gananciaB=entregados.reduce((a,v)=>a+((v.precio||0)-(v.costo||0)),0);const totalGastos=mg.reduce((a,g)=>a+(g.monto||0),0);const gananciaN=gananciaB-totalGastos;document.getElementById('mes-metrics').innerHTML=`<div class="metric"><div class="metric-label">Ventas</div><div class="metric-value">${mv.length}</div></div><div class="metric"><div class="metric-label">Ingresos</div><div class="metric-value green">${fmtN(ingresos)}</div></div><div class="metric"><div class="metric-label">Ganancia bruta</div><div class="metric-value green">${fmtN(gananciaB)}</div></div><div class="metric"><div class="metric-label">Gastos op.</div><div class="metric-value red">${fmtN(totalGastos)}</div></div><div class="metric" style="grid-column:1/-1;"><div class="metric-label">Ganancia neta</div><div class="metric-value ${gananciaN>=0?'green':'red'}">${fmtN(gananciaN)}</div></div>`;const velEl=document.getElementById('mes-ventas');if(!mv.length){velEl.innerHTML='<div class="empty">Sin ventas este mes</div>';}else{velEl.innerHTML=mv.map(v=>`<div class="list-item"><div class="list-item-main"><div class="list-item-title">${v.articulo}${v.talla?' · '+v.talla:''}</div><div class="list-item-sub">${v.usuario} · ${v.fecha||''}</div></div><div class="list-item-right"><div class="list-item-price">${fmt(v.precio)}</div><span class="badge ${(v.estatus||'').toLowerCase()}">${v.estatus||'—'}</span></div></div>`).join('');}const gastEl=document.getElementById('mes-gastos');if(!mg.length){gastEl.innerHTML='<div class="empty">Sin gastos registrados este mes</div>';}else{gastEl.innerHTML=mg.map(g=>`<div class="list-item"><div class="list-item-main"><div class="list-item-title">${g.descripcion}</div><div class="list-item-sub">${g.categoria} · ${g.fecha||''}</div><div class="item-actions"><button class="btn-xs btn-del" onclick="eliminarGasto('${g.id}')">Eliminar</button></div></div><div class="list-item-right"><div class="list-item-price" style="color:var(--red);">-${fmt(g.monto)}</div></div></div>`).join('');}}
+
+function renderMes(){
+  const key=document.getElementById('mes-select').value;
+  if(!key)return;
+  const mv=ventas.filter(v=>mesKey(v.fecha)===key);
+  const mg=gastos.filter(g=>mesKey(g.fecha)===key);
+  const entregados=mv.filter(v=>(v.estatus||'').toLowerCase()==='entregado');
+  const ingresos=entregados.reduce((a,v)=>a+(v.precio||0),0);
+  const gananciaB=entregados.reduce((a,v)=>a+((v.precio||0)-(v.costo||0)),0);
+  const totalGastos=mg.reduce((a,g)=>a+(g.monto||0),0);
+  const gananciaN=gananciaB-totalGastos;
+
+  document.getElementById('mes-metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">Ventas</div><div class="metric-value">${mv.length}</div></div>
+    <div class="metric"><div class="metric-label">Ingresos</div><div class="metric-value green">${fmtN(ingresos)}</div></div>
+    <div class="metric"><div class="metric-label">Ganancia bruta</div><div class="metric-value green">${fmtN(gananciaB)}</div></div>
+    <div class="metric"><div class="metric-label">Gastos op.</div><div class="metric-value red">${fmtN(totalGastos)}</div></div>
+    <div class="metric" style="grid-column:1/-1;"><div class="metric-label">Ganancia neta</div><div class="metric-value ${gananciaN>=0?'green':'red'}">${fmtN(gananciaN)}</div></div>`;
+
+  const velEl=document.getElementById('mes-ventas');
+  if(!mv.length){velEl.innerHTML='<div class="empty">Sin ventas este mes</div>';}
+  else{velEl.innerHTML=mv.map(v=>`<div class="list-item"><div class="list-item-main"><div class="list-item-title">${v.articulo}${v.talla?' · '+v.talla:''}</div><div class="list-item-sub">${v.usuario} · ${v.fecha||''}</div></div><div class="list-item-right"><div class="list-item-price">${fmt(v.precio)}</div><span class="badge ${(v.estatus||'').toLowerCase()}">${v.estatus||'—'}</span></div></div>`).join('');}
+
+  const gastEl=document.getElementById('mes-gastos');
+  if(!mg.length){gastEl.innerHTML='<div class="empty">Sin gastos registrados este mes</div>';}
+  else{gastEl.innerHTML=mg.map(g=>`<div class="list-item"><div class="list-item-main"><div class="list-item-title">${g.descripcion}</div><div class="list-item-sub">${g.categoria} · ${g.fecha||''}</div><div class="item-actions"><button class="btn-xs btn-del" onclick="eliminarGasto('${g.id}')">Eliminar</button></div></div><div class="list-item-right"><div class="list-item-price" style="color:var(--red);">-${fmt(g.monto)}</div></div></div>`).join('');}
+}
 window.renderMes=renderMes;
-function renderResumen(){const entregados=ventas.filter(v=>(v.estatus||'').toLowerCase()==='entregado');const apartados=ventas.filter(v=>(v.estatus||'').toLowerCase()==='apartado');const vencidos=ventas.filter(v=>{const d=diasDesde(v.fecha);return d!==null&&d>30&&(v.estatus||'').toLowerCase()!=='entregado';});const ingresos=entregados.reduce((a,v)=>a+(v.precio||0),0);const ganancias=entregados.reduce((a,v)=>a+((v.precio||0)-(v.costo||0)),0);const totalStock=stock.reduce((a,s)=>a+(s.cantidad||1),0);document.getElementById('metrics').innerHTML=`<div class="metric"><div class="metric-label">Entregadas</div><div class="metric-value">${entregados.length}</div></div><div class="metric"><div class="metric-label">Ingresos</div><div class="metric-value green">$${Math.round(ingresos/1000)}k</div></div><div class="metric"><div class="metric-label">Ganancia</div><div class="metric-value green">$${Math.round(ganancias/1000)}k</div></div><div class="metric"><div class="metric-label">Apartados</div><div class="metric-value amber">${apartados.length}</div></div><div class="metric"><div class="metric-label">En stock</div><div class="metric-value">${totalStock}</div></div><div class="metric"><div class="metric-label">⚠️ Vencidos</div><div class="metric-value ${vencidos.length>0?'red':''}">${vencidos.length}</div></div>`;const banner=document.getElementById('alertas-banner');if(vencidos.length>0){banner.innerHTML=`<div class="alerta-banner">⚠️ ${vencidos.length} cliente${vencidos.length>1?'s':''} ${vencidos.length>1?'llevan':'lleva'} más de 30 días sin pagar. Ve a Ventas → Vencidos.</div>`;}else{banner.innerHTML='';}const mc={};entregados.forEach(v=>{mc[v.articulo]=(mc[v.articulo]||0)+1;});const top=Object.entries(mc).sort((a,b)=>b[1]-a[1]).slice(0,5);document.getElementById('top-items').innerHTML=top.length?top.map(([m,c])=>`<div class="top-row"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:75%;font-size:13px;">${m}</span><span style="font-weight:600;color:var(--green);font-size:13px;flex-shrink:0;">${c}</span></div>`).join(''):'<div class="empty">Sin ventas aún</div>';document.getElementById('estatus-breakdown').innerHTML=`<div class="top-row"><span class="badge entregado">Entregado</span><span style="font-weight:600;">${entregados.length}</span></div><div class="top-row"><span class="badge apartado">Apartado</span><span style="font-weight:600;">${apartados.length}</span></div><div class="top-row"><span class="badge camino">En camino</span><span style="font-weight:600;">${camino.length}</span></div><div class="top-row"><span class="badge vencido">⚠️ Vencidos</span><span style="font-weight:600;">${vencidos.length}</span></div>`;}
+
+function renderResumen(){
+  const entregados=ventas.filter(v=>(v.estatus||'').toLowerCase()==='entregado');
+  const apartados=ventas.filter(v=>(v.estatus||'').toLowerCase()==='apartado');
+  const vencidos=ventas.filter(v=>{const d=diasDesde(v.fecha);return d!==null&&d>30&&(v.estatus||'').toLowerCase()!=='entregado';});
+  const ingresos=entregados.reduce((a,v)=>a+(v.precio||0),0);
+  const ganancias=entregados.reduce((a,v)=>a+((v.precio||0)-(v.costo||0)),0);
+  const totalStock=stock.reduce((a,s)=>a+(s.cantidad||1),0);
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">Entregadas</div><div class="metric-value">${entregados.length}</div></div>
+    <div class="metric"><div class="metric-label">Ingresos</div><div class="metric-value green">$${Math.round(ingresos/1000)}k</div></div>
+    <div class="metric"><div class="metric-label">Ganancia</div><div class="metric-value green">$${Math.round(ganancias/1000)}k</div></div>
+    <div class="metric"><div class="metric-label">Apartados</div><div class="metric-value amber">${apartados.length}</div></div>
+    <div class="metric"><div class="metric-label">En stock</div><div class="metric-value">${totalStock}</div></div>
+    <div class="metric"><div class="metric-label">⚠️ Vencidos</div><div class="metric-value ${vencidos.length>0?'red':''}">${vencidos.length}</div></div>`;
+  const banner=document.getElementById('alertas-banner');
+  if(vencidos.length>0){banner.innerHTML=`<div class="alerta-banner">⚠️ ${vencidos.length} cliente${vencidos.length>1?'s':''} ${vencidos.length>1?'llevan':'lleva'} más de 30 días sin pagar. Ve a Ventas → Vencidos.</div>`;}else{banner.innerHTML='';}
+  const mc={};entregados.forEach(v=>{mc[v.articulo]=(mc[v.articulo]||0)+1;});
+  const top=Object.entries(mc).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('top-items').innerHTML=top.length?top.map(([m,c])=>`<div class="top-row"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:75%;font-size:13px;">${m}</span><span style="font-weight:600;color:var(--green);font-size:13px;flex-shrink:0;">${c}</span></div>`).join(''):'<div class="empty">Sin ventas aún</div>';
+  document.getElementById('estatus-breakdown').innerHTML=`
+    <div class="top-row"><span class="badge entregado">Entregado</span><span style="font-weight:600;">${entregados.length}</span></div>
+    <div class="top-row"><span class="badge apartado">Apartado</span><span style="font-weight:600;">${apartados.length}</span></div>
+    <div class="top-row"><span class="badge camino">En camino</span><span style="font-weight:600;">${camino.length}</span></div>
+    <div class="top-row"><span class="badge vencido">⚠️ Vencidos</span><span style="font-weight:600;">${vencidos.length}</span></div>`;}
+
 function renderAll(){renderResumen();renderVentas();renderStock();renderCamino();buildMesOptions();renderMes();syncLabel();}
+
 function showPage(p){['resumen','nueva','ventas','stock','camino','mes'].forEach(id=>{document.getElementById('page-'+id).classList.toggle('active',id===p);document.getElementById('nav-'+id).classList.toggle('active',id===p);});}
 window.showPage=showPage;
+
 onSnapshot(query(collection(db,'ventas'),orderBy('ts','desc')),(snap)=>{ventas=snap.docs.map(d=>({id:d.id,...d.data()}));updateAutocomplete();renderAll();});
 onSnapshot(query(collection(db,'stock'),orderBy('ts','desc')),(snap)=>{stock=snap.docs.map(d=>({id:d.id,...d.data()}));updateAutocomplete();renderAll();});
 onSnapshot(query(collection(db,'camino'),orderBy('ts','desc')),(snap)=>{camino=snap.docs.map(d=>({id:d.id,...d.data()}));updateAutocomplete();renderAll();});
 onSnapshot(query(collection(db,'gastos'),orderBy('ts','desc')),(snap)=>{gastos=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();});
+
 const today=new Date().toISOString().split('T')[0];
 document.getElementById('n-fecha').value=today;
 document.getElementById('c-fecha').value=today;
